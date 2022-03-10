@@ -1,6 +1,7 @@
 import os
-import sys
-import FTPdownloader
+
+from hagFtpClient import *
+from hagLogger import *
 from pymongo import MongoClient
 
 def GetCtSourceListFromMongo(ip:str, port:int):
@@ -26,26 +27,27 @@ def GetCtSourceListFromMongo(ip:str, port:int):
     return ct_source_name_list, ftp_file_name_list
 
 if __name__ == '__main__':
-    # 输入参数
-    ftpserver = '192.168.0.100' # ftp主机IP
-    port = 21                                  # ftp端口
-    usrname = 'hanglok-ftp'       # 登陆用户名
-    pwd = 'hanglok'       # 登陆密码
-    ftpath = '/home/hanglok-ftp/'  # 远程文件夹
+    
+    ftpath = ''  # 远程文件夹
     localpath = 'C:\luohao\SphereSegDATA/'  
 
     ctsource_names, ftp_files = GetCtSourceListFromMongo("192.168.0.100", 27017)
+    ip = '192.168.0.100'
+    port = '21'
+    user = 'hanglok-ftp'
+    password = 'hanglok'
+    logger = HagLogger("log.log")
+    ftp = HagFTPClient(ip, port, user, password, logger)
     
-    Ftp = FTPdownloader.FtpDownloadCls(ftpserver, port, usrname, pwd)
     print("{} unique ct source Imgae in total.".format(len(ctsource_names)))
 
     for name, ftpf in zip(ctsource_names, ftp_files):
         localCTpath = localpath + name + r'/'
         if not os.path.exists(localCTpath):
             os.makedirs(localCTpath)
-        Ftp.downloadFile(ftpath + ftpf[0], localCTpath + ftpf[0])
-        Ftp.downloadFile(ftpath + ftpf[1], localCTpath + ftpf[1])
+        ftp.down_file(ftpath + ftpf[0], localCTpath + ftpf[0])
+        ftp.down_file(ftpath + ftpf[1], localCTpath + ftpf[1])
         print(name, " DownLoaded")
-    Ftp.ftpDisConnect()
+    ftp.close()
 
     
