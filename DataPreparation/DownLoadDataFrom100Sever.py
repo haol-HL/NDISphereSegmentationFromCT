@@ -16,10 +16,17 @@ def GetCtSourceListFromMongo(ip:str, port:int):
         collection_seg = db['ct_result']
         if (len(list(collection_ctsource.find({})))) == 0 or (len(list(collection_seg.find({}))) == 0):
             continue
-        ct_source_name = list(collection_ctsource.find({}))[0]['data_name']
-        ftp_ctsource_file_name = list(collection_ctsource.find({}))[0]['file_path']
-        ftp_ctseg_file_name = list(collection_seg.find({}))[0]['file_path']
+        ct_source_list = list(collection_ctsource.find({}))
+        ct_source_name = ct_source_list[0]['data_name']
         if ct_source_name in ct_source_name_list:
+            continue
+        ftp_ctsource_file_name = ct_source_list[0]['file_path']
+
+        ct_seg_list = list(collection_seg.find({}))
+        ftp_ctseg_file_name = ct_seg_list[len(ct_seg_list)-1]['file_path']
+        if len(ftp_ctseg_file_name) == 0:
+            
+            print(ct_source_name, 'has no result image!')
             continue
         ct_source_name_list.append(ct_source_name)
         ftp_file_name_list.append([ftp_ctsource_file_name, ftp_ctseg_file_name])
@@ -30,7 +37,6 @@ if __name__ == '__main__':
     
     ftpath = ''  # 远程文件夹
     localpath = 'C:\luohao\SphereSegDATA/'  
-
     ctsource_names, ftp_files = GetCtSourceListFromMongo("192.168.0.100", 27017)
     ip = '192.168.0.100'
     port = '21'
