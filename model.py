@@ -190,10 +190,10 @@ if __name__ == '__main__':
         image_info = (origin, spacing, direction, size)
         return np_array, image_info
 
-    np_image, image_info = readHMA(r'D:\TPS\SepheresSegData\source/0.mha')
+    np_image, image_info = readHMA(r'/home/haol/NDISpheresData/source/0.mha')
     # np_image = np.random.random([10, 64, 64])
     with torch.no_grad():
-        net = UNet3D(in_channels=1, out_channels=1, f_maps=4, num_groups=4, num_levels=3)
+        net = UNet3D(in_channels=1, out_channels=1, f_maps=4, num_groups=4, num_levels=2, layer_order='bcr')
 
         device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         print("using device: {}".format(device))
@@ -204,4 +204,4 @@ if __name__ == '__main__':
         tensor_image = tensor_image.cuda().float()
 
         result = net(tensor_image)
-    print(result.shape)
+        print(result)

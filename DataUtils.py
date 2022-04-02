@@ -20,12 +20,12 @@ class My_dataset(Dataset):
         trg_filenames=os.listdir(trg_image_path)
         assert len(trg_image_path) != len(src_filenames), "trg size didnt match src size trg:{} != src:{}".format(len(trg_filenames), len(src_filenames))
         for i in range(len(src_filenames)):
-            print('\r', "loading data: {} / {}".format(i, len(src_filenames)), end=' ', flush=True)
+            print('\r', "loading data: {} / {}".format(i + 1, len(src_filenames)), end=' ', flush=True)
             src_image, _ = readHMA(os.path.join(src_image_path, src_filenames[i]))
             trg_image, _ = readHMA(os.path.join(trg_image_path, trg_filenames[i]))
 
-            src_tensor_image = torch.from_numpy(src_image) 
-            trg_tensor_image = torch.from_numpy(trg_image) 
+            src_tensor_image = torch.from_numpy(src_image).cpu() 
+            trg_tensor_image = torch.from_numpy(trg_image).cpu()
 
             self.src.append(src_tensor_image)
             self.trg.append(trg_tensor_image)
