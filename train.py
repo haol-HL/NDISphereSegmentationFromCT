@@ -25,6 +25,7 @@ class trainer():
 
     def train(self, logger):
         # best_loss统计，初始化为正无穷
+        train_loss = 0
         best_loss = float('inf')
         # 训练epochs次
         print("begin training")
@@ -58,13 +59,14 @@ class trainer():
                 pred = net(image)
                 # 计算loss
                 loss = self.criterion(pred, label)
+                train_loss += loss
                 # print('Loss/train', loss.item())
                 # 保存loss值最小的网络参数
                 if loss < best_loss:
                     best_loss = loss
                     torch.save(net.state_dict(), 'best_model.pth')
                 # 更新参数
-                # print('\r', "training...  {:.2f}%, best loss in this epoch: {}".format(i_batch / len(self.train_loader) * 100, best_loss), end=' ', flush=True)
+                print('\r', "epoch: {}, lr: {}, {:.2f}%, loss: {}".format(epoch, self.lr_scheduler.get_lr(), (i_batch  + 1) / len(self.train_loader) * 100, loss, end=' ', flush=True))
                 if logger is not None:
                     logger.info("epoch: {}, lr: {}, {:.2f}%, loss: {}".format(epoch, self.lr_scheduler.get_lr(), (i_batch  + 1) / len(self.train_loader) * 100, loss))
                 loss.backward()
@@ -75,6 +77,7 @@ class trainer():
                 self.optimizer.step()
 
             self.lr_scheduler.step()
+            train_loss /= i_batch
             with torch.no_grad():
                 val_lose = 0
                 for i_batch, batch_data in enumerate(self.train_loader):
@@ -92,21 +95,25 @@ class trainer():
                     val_lose += self.criterion(pred, label).item()
                 val_lose /= i_batch
 
-                # print("epoch: {} done".format(epoch))
-                # print("best train loss: {}".format(best_loss)) 
-                # print("validation loss: {}".format(val_lose))
-                # print()
-                # print("#"*50)
-                # print()
-                
                 time_end = time.time()
+
+
+                print.info("epoch: {} done".format(epoch))
+                print.info("train train loss: {}".format(train_loss)) 
+                print.info("validation loss: {}".format(val_lose))
+                print.info("time usage in this epoch: {:2f}s".format(time_end - time_begin))
+                print.info("#"*50)
+                print.info(" "*50)
                 if logger is not None:
                     logger.info("epoch: {} done".format(epoch))
-                    logger.info("best train loss: {}".format(best_loss)) 
+                    logger.info("train train loss: {}".format(train_loss)) 
                     logger.info("validation loss: {}".format(val_lose))
                     logger.info("time usage in this epoch: {:2f}s".format(time_end - time_begin))
                     logger.info("#"*50)
                     logger.info(" "*50)
+
+            if (epoch + 1) % (int(self.maxepoches / 5)) == 0:
+                torch.save(net.state_dict(), 'model_in_{}.pth'.format(epoch+1))
 
     def fit(self, logger):
         self.train(logger)
@@ -114,11 +121,11 @@ class trainer():
  
  
 if __name__ == "__main__":
-    torch.cuda.set_device(1)
+    torch.cuda.set_device(0)
     log_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "log")
     if not os.path.exists(log_path):
         os.mkdir(log_path)
-    log = HagLogger(os.path.join(log_path, "log_mod.log"))
+    log = HagLogger(os.path.join(log_path, "log_version1.log"))
 
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')

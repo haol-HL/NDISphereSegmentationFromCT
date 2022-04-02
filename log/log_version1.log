@@ -1,0 +1,109 @@
+2022-04-02 18:32:50,191 - [line:32] - INFO: Model: UNet3D(
+  (encoders): ModuleList(
+    (0): Encoder(
+      (basic_module): DoubleConv(
+        (SingleConv1): SingleConv(
+          (batchnorm): BatchNorm3d(1, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (conv): Conv3d(1, 2, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1), bias=False)
+          (ReLU): ReLU(inplace=True)
+        )
+        (SingleConv2): SingleConv(
+          (batchnorm): BatchNorm3d(2, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (conv): Conv3d(2, 4, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1), bias=False)
+          (ReLU): ReLU(inplace=True)
+        )
+      )
+    )
+    (1): Encoder(
+      (pooling): MaxPool3d(kernel_size=2, stride=2, padding=0, dilation=1, ceil_mode=False)
+      (basic_module): DoubleConv(
+        (SingleConv1): SingleConv(
+          (batchnorm): BatchNorm3d(4, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (conv): Conv3d(4, 4, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1), bias=False)
+          (ReLU): ReLU(inplace=True)
+        )
+        (SingleConv2): SingleConv(
+          (batchnorm): BatchNorm3d(4, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (conv): Conv3d(4, 8, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1), bias=False)
+          (ReLU): ReLU(inplace=True)
+        )
+      )
+    )
+  )
+  (decoders): ModuleList(
+    (0): Decoder(
+      (upsampling): InterpolateUpsampling()
+      (basic_module): DoubleConv(
+        (SingleConv1): SingleConv(
+          (batchnorm): BatchNorm3d(12, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (conv): Conv3d(12, 4, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1), bias=False)
+          (ReLU): ReLU(inplace=True)
+        )
+        (SingleConv2): SingleConv(
+          (batchnorm): BatchNorm3d(4, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+          (conv): Conv3d(4, 4, kernel_size=(3, 3, 3), stride=(1, 1, 1), padding=(1, 1, 1), bias=False)
+          (ReLU): ReLU(inplace=True)
+        )
+      )
+    )
+  )
+  (final_conv): Conv3d(4, 1, kernel_size=(1, 1, 1), stride=(1, 1, 1))
+  (final_activation): Sigmoid()
+)
+2022-04-02 18:32:50,191 - [line:32] - INFO: optimizer: Adam (
+Parameter Group 0
+    amsgrad: False
+    betas: (0.9, 0.999)
+    eps: 1e-08
+    initial_lr: 0.001
+    lr: 0.001
+    weight_decay: 0
+)
+2022-04-02 18:32:50,191 - [line:32] - INFO: loss: BCEWithLogitsLoss()
+2022-04-02 18:32:50,191 - [line:32] - INFO: ####################
+2022-04-02 18:32:50,191 - [line:32] - INFO:                     
+2022-04-02 18:32:50,191 - [line:32] - INFO: ------------begin training--------------
+2022-04-02 18:32:50,191 - [line:32] - INFO: epoch: 0
+2022-04-02 18:32:52,783 - [line:32] - INFO: epoch: 0, lr: [0.001], 1.67%, loss: 0.7770048379898071
+2022-04-02 18:32:56,964 - [line:32] - INFO: epoch: 0, lr: [0.001], 3.33%, loss: 0.7385441660881042
+2022-04-02 18:33:01,607 - [line:32] - INFO: epoch: 0, lr: [0.001], 5.00%, loss: 0.7360878586769104
+2022-04-02 18:33:07,588 - [line:32] - INFO: epoch: 0, lr: [0.001], 6.67%, loss: 0.6914247870445251
+2022-04-02 18:33:13,302 - [line:32] - INFO: epoch: 0, lr: [0.001], 8.33%, loss: 0.7157629132270813
+2022-04-02 18:33:19,793 - [line:32] - INFO: epoch: 0, lr: [0.001], 10.00%, loss: 0.6481207609176636
+2022-04-02 18:33:25,330 - [line:32] - INFO: epoch: 0, lr: [0.001], 11.67%, loss: 0.6823024153709412
+2022-04-02 18:33:30,366 - [line:32] - INFO: epoch: 0, lr: [0.001], 13.33%, loss: 0.6218628883361816
+2022-04-02 18:33:36,943 - [line:32] - INFO: epoch: 0, lr: [0.001], 15.00%, loss: 0.6423896551132202
+2022-04-02 18:33:43,993 - [line:32] - INFO: epoch: 0, lr: [0.001], 16.67%, loss: 0.5763340592384338
+2022-04-02 18:33:51,695 - [line:32] - INFO: epoch: 0, lr: [0.001], 18.33%, loss: 0.5586267113685608
+2022-04-02 18:33:58,310 - [line:32] - INFO: epoch: 0, lr: [0.001], 20.00%, loss: 0.5431221127510071
+2022-04-02 18:34:02,840 - [line:32] - INFO: epoch: 0, lr: [0.001], 21.67%, loss: 0.5280656218528748
+2022-04-02 18:34:07,224 - [line:32] - INFO: epoch: 0, lr: [0.001], 23.33%, loss: 0.4896933138370514
+2022-04-02 18:34:11,769 - [line:32] - INFO: epoch: 0, lr: [0.001], 25.00%, loss: 0.4974670112133026
+2022-04-02 18:34:17,148 - [line:32] - INFO: epoch: 0, lr: [0.001], 26.67%, loss: 0.45836395025253296
+2022-04-02 18:34:22,402 - [line:32] - INFO: epoch: 0, lr: [0.001], 28.33%, loss: 0.43606990575790405
+2022-04-02 18:34:28,891 - [line:32] - INFO: epoch: 0, lr: [0.001], 30.00%, loss: 0.44462063908576965
+2022-04-02 18:34:34,533 - [line:32] - INFO: epoch: 0, lr: [0.001], 31.67%, loss: 0.435922771692276
+2022-04-02 18:34:39,928 - [line:32] - INFO: epoch: 0, lr: [0.001], 33.33%, loss: 0.4527728855609894
+2022-04-02 18:34:44,477 - [line:32] - INFO: epoch: 0, lr: [0.001], 35.00%, loss: 0.4952421188354492
+2022-04-02 18:34:49,424 - [line:32] - INFO: epoch: 0, lr: [0.001], 36.67%, loss: 0.3910302519798279
+2022-04-02 18:34:54,841 - [line:32] - INFO: epoch: 0, lr: [0.001], 38.33%, loss: 0.45614194869995117
+2022-04-02 18:34:59,335 - [line:32] - INFO: epoch: 0, lr: [0.001], 40.00%, loss: 0.3737674653530121
+2022-04-02 18:35:03,778 - [line:32] - INFO: epoch: 0, lr: [0.001], 41.67%, loss: 0.3460797369480133
+2022-04-02 18:35:08,537 - [line:32] - INFO: epoch: 0, lr: [0.001], 43.33%, loss: 0.34637999534606934
+2022-04-02 18:35:13,830 - [line:32] - INFO: epoch: 0, lr: [0.001], 45.00%, loss: 0.33682650327682495
+2022-04-02 18:35:18,766 - [line:32] - INFO: epoch: 0, lr: [0.001], 46.67%, loss: 0.36500129103660583
+2022-04-02 18:35:24,160 - [line:32] - INFO: epoch: 0, lr: [0.001], 48.33%, loss: 0.3274659514427185
+2022-04-02 18:35:28,905 - [line:32] - INFO: epoch: 0, lr: [0.001], 50.00%, loss: 0.30854323506355286
+2022-04-02 18:35:34,483 - [line:32] - INFO: epoch: 0, lr: [0.001], 51.67%, loss: 0.32820191979408264
+2022-04-02 18:35:39,057 - [line:32] - INFO: epoch: 0, lr: [0.001], 53.33%, loss: 0.34242451190948486
+2022-04-02 18:35:44,212 - [line:32] - INFO: epoch: 0, lr: [0.001], 55.00%, loss: 0.38684597611427307
+2022-04-02 18:35:48,368 - [line:32] - INFO: epoch: 0, lr: [0.001], 56.67%, loss: 0.308297723531723
+2022-04-02 18:35:52,329 - [line:32] - INFO: epoch: 0, lr: [0.001], 58.33%, loss: 0.4051124155521393
+2022-04-02 18:35:56,864 - [line:32] - INFO: epoch: 0, lr: [0.001], 60.00%, loss: 0.32876676321029663
+2022-04-02 18:36:02,030 - [line:32] - INFO: epoch: 0, lr: [0.001], 61.67%, loss: 0.31602242588996887
+2022-04-02 18:36:07,868 - [line:32] - INFO: epoch: 0, lr: [0.001], 63.33%, loss: 0.5005577802658081
+2022-04-02 18:36:14,757 - [line:32] - INFO: epoch: 0, lr: [0.001], 65.00%, loss: 0.34365251660346985
+2022-04-02 18:36:19,879 - [line:32] - INFO: epoch: 0, lr: [0.001], 66.67%, loss: 0.3048134446144104
+2022-04-02 18:36:25,189 - [line:32] - INFO: epoch: 0, lr: [0.001], 68.33%, loss: 0.37147951126098633
+2022-04-02 18:36:30,692 - [line:32] - INFO: epoch: 0, lr: [0.001], 70.00%, loss: 0.40712249279022217
+2022-04-02 18:36:35,711 - [line:32] - INFO: epoch: 0, lr: [0.001], 71.67%, loss: 0.3734199106693268
