@@ -9,8 +9,10 @@ def dice_coeff(pred, target):
     return (2. * intersection + smooth) / (m1.sum() + m2.sum() + smooth)
 
 #Dice损失函数
+from numpy import dtype
 import torch
 import torch.nn as nn
+from torch.autograd import Variable
 import torch.nn.functional as F
 
 class DiceLoss(nn.Module):
@@ -34,9 +36,7 @@ class DiceLoss(nn.Module):
 
 
 #BiseNet中的DiceLoss代码
-import torch.nn as nn
-import torch
-import torch.nn.functional as F
+
 
 def flatten(tensor):
     """Flattens a given tensor such that the channel axis is first.
@@ -73,17 +73,63 @@ class BiseNetDiceLoss(nn.Module):
         return 1 - dice
         # return 1 - 2. * intersect / denominator
 
-if __name__ == "__main__":
-    
-    loss = DiceLoss()
-    Bloss = BiseNetDiceLoss()
-    predict = torch.randn(3, 4, 4)
-    target = torch.randn(3, 4, 4)
-    print(target)
-    
 
-    score = loss(predict, target)
-    print(score)
 
-    score = Bloss(predict, target)
-    print(score)
+
+class focal_loss(nn.Module):    
+    def __init__(self, alpha=0.25, gamma=2, num_classes = 3, size_average=True):
+        """
+        focal_loss损失函数, -α(1-yi)**γ *ce_loss(xi,yi)      
+        步骤详细的实现了 focal_loss损失函数.
+        :param alpha:   阿尔法α,类别权重.      当α是列表时,为各类别权重,当α为常数时,类别权重为[α, 1-α, 1-α, ....],常用于 目标检测算法中抑制背景类 , retainnet中设置为0.25
+        :param gamma:   伽马γ,难易样本调节参数. retainnet中设置为2
+        :param num_classes:     类别数量
+        :param size_average:    损失计算方式,默认取均值
+        """
+
+        super(focal_loss,self).__init__()
+        self.size_average = size_average
+        if isinstance(alpha,list):
+            assert len(alpha)==num_classes   # α可以以list方式输入,size:[num_classes] 用于对不同类别精细地赋予权重
+            print("Focal_loss alpha = {}, 将对每一类权重进行精细化赋值".format(alpha))
+            self.alpha = torch.Tensor(alpha)
+        else:
+            assert alpha<1   #如果α为一个常数,则降低第一类的影响,在目标检测中为第一类
+            print(" --- Focal_loss alpha = {} ,将对背景类进行衰减,请在目标检测任务中使用 --- ".format(alpha))
+            self.alpha = torch.zeros(num_classes)
+            self.alpha[0] += alpha
+            self.alpha[1:] += (1-alpha) # α 最终为 [ α, 1-α, 1-α, 1-α, 1-α, ...] size:[num_classes]
+        self.gamma = gamma
+
+    def forward(self, predict, ground):
+
+     
+        predict = predict.view(2, -1).T    
+        self.alpha = self.alpha.to(predict.device)        
+        preds_logsoft = torch.log(predict)
+        preds_softmax_picked = predict.gather(1,ground.view(-1,1))   # 这部分实现nll_loss ( crossempty = log_softmax + nll )  
+        preds_logsoft_picked = preds_logsoft.gather(1,ground.view(-1,1))        
+        self.alpha = self.alpha.gather(0,ground.view(-1))      
+        loss = -torch.mul(torch.pow((1-preds_softmax_picked), self.gamma), preds_logsoft_picked)  # torch.pow((1-preds_softmax), self.gamma) 为focal loss中 (1-pt)**γ
+        loss = torch.mul(self.alpha, loss.t())  
+
+        if self.size_average:        
+            loss = loss.mean()        
+        else:            
+            loss = loss.sum()        
+        return loss
+
+class SoftDiceLoss(nn.Module):
+    def __init__(self):
+        super(SoftDiceLoss, self).__init__()
+ 
+    def forward(self, predict, targets):
+        smooth = 1
+        targets_flatten = targets.view(-1)
+        label_target_area = targets_flatten.sum()
+        predict_pos = predict.view(2, -1).T[:,1]
+        predict_target_area = predict_pos.sum()
+        intercept_area = (predict_pos*targets_flatten).sum()
+        dice_coef =  (2. * intercept_area + smooth) / (predict_target_area + label_target_area + smooth )
+        dice_loss = 1 - dice_coef
+        return dice_loss

@@ -1,5 +1,6 @@
 import torch.nn as nn
-
+from utils import *
+from losses import *
 from UNetBlocks import DoubleConv, ExtResNetBlock, create_encoders, \
     create_decoders
 from utils import number_of_features_per_level, get_class
@@ -90,8 +91,8 @@ class Abstract3DUNet(nn.Module):
         x = self.final_conv(x)
 
         # apply final_activation (i.e. Sigmoid or Softmax) only during prediction. During training the network outputs logits
-        if not self.training and self.final_activation is not None:
-            x = self.final_activation(x)
+        # if not self.training and self.final_activation is not None:
+        x = self.final_activation(x)
 
         return x
 
@@ -174,34 +175,37 @@ def get_model(model_config):
 
 if __name__ == '__main__':
     import SimpleITK as sitk
-    import numpy as np
     import torch
-    def readHMA(path:str):
-        image = sitk.ReadImage(path)
-        size = image.GetSize()
-        print("Image size:", size)
-        spacing = image.GetSpacing()
-        direction = image.GetDirection()
-        origin = image.GetOrigin()
+    def FalsePos_rate(preds, y):
+        p = preds.view(2, -1).T
+        FalsePos = torch.eq((y.view(-1)==0), (p[:,1]>=0.5)).float()
+        rate = FalsePos.sum() / (p[:,1]>=0.5).float().sum()
+        return rate
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    np_image, image_info = readHMA(r'/home/haol/NDISegData/source/41.mha', 2)
+    # image, info = readHMA(r'/home/haol/NDISpheresData/source/32.mha')
+    # image_label, info_label = readHMA(r'/home/haol/NDISpheresData/label/32.mha')
+    # tensor_image_label = torch.from_numpy(image_label)
+    # tensor_image_label = torch.unsqueeze(tensor_image_label, 0)
+    # tensor_image_label = torch.unsqueeze(tensor_image_label, 0)
+    # tensor_image_label = tensor_image_label.to(device=device, dtype=torch.int64)
+    # with torch.no_grad():
+    net = UNet3D(in_channels=1, out_channels=2, f_maps=32, num_groups=8, num_levels=5, layer_order='bcr', final_sigmoid = False)
+    print("using device: {}".format(device))
+    net.to(device)
+    tensor_image = torch.from_numpy(np_image) 
+    tensor_image = torch.unsqueeze(tensor_image, 0)
+    tensor_image = torch.unsqueeze(tensor_image, 0)
+    tensor_image = tensor_image.cuda().float()
 
-        np_array = sitk.GetArrayFromImage(image)
-        print("np_array size:", np_array.shape)
-        
-        image_info = (origin, spacing, direction, size)
-        return np_array, image_info
+    result = net(tensor_image)
 
-    np_image, image_info = readHMA(r'/home/haol/NDISpheresData/source/0.mha')
-    # np_image = np.random.random([10, 64, 64])
-    with torch.no_grad():
-        net = UNet3D(in_channels=1, out_channels=1, f_maps=4, num_groups=4, num_levels=2, layer_order='bcr')
 
-        device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-        print("using device: {}".format(device))
-        net.to(device)
-        tensor_image = torch.from_numpy(np_image) 
-        tensor_image = torch.unsqueeze(tensor_image, 0)
-        tensor_image = torch.unsqueeze(tensor_image, 0)
-        tensor_image = tensor_image.cuda().float()
+    # result = torch.squeeze(result, 0)
+    # result = torch.squeeze(result, 0)
+    print(result.view(2, -1).T)
+    # criterion = focal_loss(num_classes = 2, alpha=0.9, gamma=2)
 
-        result = net(tensor_image)
-        print(result)
+    # val_lose = criterion(result, tensor_image_label)
+    # print("loss: ", val_lose)
+    # print(FalsePos_rate(result, tensor_image_label))

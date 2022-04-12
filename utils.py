@@ -13,18 +13,28 @@ import SimpleITK as sitk
 import numpy as np
 
 
-def readHMA(path:str):
+def readHMA(path:str, down_sample_factor:int = 1 ):
     image = sitk.ReadImage(path)
     size = image.GetSize()
     spacing = image.GetSpacing()
     direction = image.GetDirection()
     origin = image.GetOrigin()
-
     np_array = sitk.GetArrayFromImage(image)
-    
+    if down_sample_factor > 1:
+        np_array = np_array[::down_sample_factor, ::down_sample_factor, ::down_sample_factor]
+        spacing = (spacing[0] * down_sample_factor, spacing[1] * down_sample_factor, spacing[2] * down_sample_factor,)
+        size = np_array.shape[::-1]
     image_info = (origin, spacing, direction, size)
     return np_array, image_info
-
+    
+def writhMHA_fromNumpy(path, np_array, image_info):
+    
+    origin, spacing, direction, _ = image_info 
+    sitk_image = sitk.GetImageFromArray(np_array)
+    sitk_image.SetOrigin(origin)
+    sitk_image.SetSpacing(spacing)
+    sitk_image.SetDirection(direction)
+    sitk.WriteImage(sitk_image, path)
 
 def save_checkpoint(state, is_best, checkpoint_dir):
     """Saves model and training parameters at '{checkpoint_dir}/last_checkpoint.pytorch'.

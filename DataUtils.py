@@ -1,3 +1,4 @@
+from numpy import dtype
 import torch
 from torch import nn
 from torch.utils.data import Dataset, DataLoader
@@ -6,7 +7,7 @@ from utils import *
 import os
 
 class My_dataset(Dataset):
-    def __init__(self, src_image_path, trg_image_path):
+    def __init__(self, src_image_path, trg_image_path, sample_rate = 1):
         super().__init__()
         # assert device in ["gpu", 'cpu']
         # if device == 'gpu':
@@ -21,11 +22,11 @@ class My_dataset(Dataset):
         assert len(trg_image_path) != len(src_filenames), "trg size didnt match src size trg:{} != src:{}".format(len(trg_filenames), len(src_filenames))
         for i in range(len(src_filenames)):
             print('\r', "loading data: {} / {}".format(i + 1, len(src_filenames)), end=' ', flush=True)
-            src_image, _ = readHMA(os.path.join(src_image_path, src_filenames[i]))
-            trg_image, _ = readHMA(os.path.join(trg_image_path, trg_filenames[i]))
+            src_image, _ = readHMA(os.path.join(src_image_path, src_filenames[i]), int(1 / sample_rate))
+            trg_image, _ = readHMA(os.path.join(trg_image_path, trg_filenames[i]), int(1 / sample_rate))
 
-            src_tensor_image = torch.from_numpy(src_image).cpu() 
-            trg_tensor_image = torch.from_numpy(trg_image).cpu()
+            src_tensor_image = torch.from_numpy(src_image)
+            trg_tensor_image = torch.from_numpy(trg_image)
 
             self.src.append(src_tensor_image)
             self.trg.append(trg_tensor_image)
