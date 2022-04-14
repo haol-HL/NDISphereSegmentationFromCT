@@ -189,5 +189,5 @@ if __name__ == "__main__":
     scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size = 20, gamma = 0.1, last_epoch=-1)
     criterion = SoftDiceLoss()
     
-    Unet_trainer = trainer(net, optimizer, scheduler, criterion, train_data_loader, val_data_loader, device, 100, 0.0001)
+    Unet_trainer = trainer(net, optimizer, scheduler, criterion, train_data_loader, val_data_loader, device, 500, 0.0001)
     Unet_trainer.fit(log)
