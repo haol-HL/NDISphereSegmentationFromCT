@@ -83,7 +83,7 @@ class trainer():
 
                 if loss < best_loss:
                     best_loss = loss
-                    torch.save(net.state_dict(), 'best_model_dice_resample0.5.pth')
+                    torch.save(net.state_dict(), 'best_model_dice_mobel4.pth')
                 # 更新参数
                 print('\r', "epoch: {}, lr: {}, {:.2f}%, loss: {}, counter:{}".format(epoch, self.lr_scheduler.get_lr(), (i_batch  + 1) / len(self.train_loader) * 100, loss, counter, end=' ', flush=True))
                 if logger is not None:
@@ -151,8 +151,8 @@ class trainer():
                     logger.info("#"*50)
                     logger.info(" "*50)
 
-            if (epoch + 1) % (int(self.maxepoches / 5)) == 0:
-                torch.save(net.state_dict(), 'model_in_{}_dice_resample0.5.pth'.format(epoch+1))
+            if (epoch + 1) % (int(self.maxepoches / 10)) == 0:
+                torch.save(net.state_dict(), 'model_in_{}_dice_mobel4.pth'.format(epoch+1))
 
     def fit(self, logger):
         self.train(logger)
@@ -160,15 +160,15 @@ class trainer():
  
  
 if __name__ == "__main__":
-    torch.cuda.set_device(0)
+    torch.cuda.set_device(1)
     log_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "log")
     if not os.path.exists(log_path):
         os.mkdir(log_path)
-    log = HagLogger(os.path.join(log_path, "log_dice_resample0.5.log"))
+    log = HagLogger(os.path.join(log_path, "log_dice_mobel4.log"))
 
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    net = UNet3D(in_channels=1, out_channels=2, f_maps=16, num_groups=8, num_levels=5, layer_order='bcr', final_sigmoid = False)
+    net = UNet3D(in_channels=1, out_channels=2, f_maps=4, num_groups=8, num_levels=4, layer_order='bcr', final_sigmoid = False)
     net.to(device=device)
 
     dataset = My_dataset(r'/home/haol/NDISegData/source', r'/home/haol/NDISegData/label', 0.5)
@@ -186,7 +186,7 @@ if __name__ == "__main__":
                             eps=1e-08,
                             weight_decay=0,
                             amsgrad=False)
-    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size = 20, gamma = 0.1, last_epoch=-1)
+    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size = 50, gamma = 0.33, last_epoch=-1)
     criterion = SoftDiceLoss()
     
     Unet_trainer = trainer(net, optimizer, scheduler, criterion, train_data_loader, val_data_loader, device, 500, 0.0001)
