@@ -3,7 +3,7 @@ import torch
 from torch import nn
 from torch.utils.data import Dataset, DataLoader
 
-from utils import *
+from NDISegNet.utils import *
 import os
 
 class My_dataset(Dataset):

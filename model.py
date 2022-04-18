@@ -1,9 +1,9 @@
 import torch.nn as nn
-from utils import *
-from losses import *
-from UNetBlocks import DoubleConv, ExtResNetBlock, create_encoders, \
+from NDISegNet.utils import *
+from NDISegNet.losses import *
+from NDISegNet.UNetBlocks import DoubleConv, ExtResNetBlock, create_encoders, \
     create_decoders
-from utils import number_of_features_per_level, get_class
+from NDISegNet.utils import number_of_features_per_level, get_class
 
 
 class Abstract3DUNet(nn.Module):

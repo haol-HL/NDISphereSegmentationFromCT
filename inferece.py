@@ -1,8 +1,8 @@
 import torch.nn as nn
 import torch
-from model import UNet3D
-from losses import *
-from utils import *
+from NDISegNet.model import UNet3D
+from NDISegNet.losses import *
+from NDISegNet.utils import *
 
 
 def NDISeg(input_numpy_array):
