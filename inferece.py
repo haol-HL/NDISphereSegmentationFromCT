@@ -10,12 +10,12 @@ def NDISeg(np_array, down_sample_factor):
     PATH = r'/home/hanglok/IPGM-CTSegmentation/NDISegNet/model/mobel_level4/model_in_500_dice_mobel4.pth'
 
     if down_sample_factor > 1:
-        np_array = np_array[::down_sample_factor, ::down_sample_factor, ::down_sample_factor]
+        np_array_res = np_array[::down_sample_factor, ::down_sample_factor, ::down_sample_factor]
 
     torch.cuda.set_device(0)
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
     net = UNet3D(in_channels=1, out_channels=2, f_maps=4, num_groups=8, num_levels=4, layer_order='bcr', final_sigmoid = False)
-    tensor_image = torch.from_numpy(np_array)
+    tensor_image = torch.from_numpy(np_array_res)
     tensor_image = torch.unsqueeze(tensor_image, 0)
     tensor_image = torch.unsqueeze(tensor_image, 0)
     tensor_image = tensor_image.to(device=device, dtype=torch.float32)
@@ -25,10 +25,11 @@ def NDISeg(np_array, down_sample_factor):
     pred = net(tensor_image)   
 
     print("inferece Done!") 
+    pred = torch.round(pred)
+    pred = pred[:,1,:,:,:]
+    pred = torch.nn.functional.interpolate(pred, size =np_array.shape , mode='area') 
 
     pred = torch.squeeze(pred, 0)
-    pred = torch.round(pred)
-    pred = pred[1,:,:,:]
     pred = pred.cpu()
     pred = pred.detach().numpy()
     
