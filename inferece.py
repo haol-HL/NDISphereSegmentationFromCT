@@ -5,13 +5,17 @@ from NDISegNet.losses import *
 from NDISegNet.utils import *
 
 
-def NDISeg(input_numpy_array):
-    PATH = r'./model/mobel_level4/model_in_500_dice_mobel4.pth'
+def NDISeg(np_array, down_sample_factor):
+    torch.cuda.empty_cache()
+    PATH = r'/home/hanglok/IPGM-CTSegmentation/NDISegNet/model/mobel_level4/model_in_500_dice_mobel4.pth'
+
+    if down_sample_factor > 1:
+        np_array = np_array[::down_sample_factor, ::down_sample_factor, ::down_sample_factor]
 
     torch.cuda.set_device(0)
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
     net = UNet3D(in_channels=1, out_channels=2, f_maps=4, num_groups=8, num_levels=4, layer_order='bcr', final_sigmoid = False)
-    tensor_image = torch.from_numpy(input_numpy_array)
+    tensor_image = torch.from_numpy(np_array)
     tensor_image = torch.unsqueeze(tensor_image, 0)
     tensor_image = torch.unsqueeze(tensor_image, 0)
     tensor_image = tensor_image.to(device=device, dtype=torch.float32)
@@ -20,16 +24,14 @@ def NDISeg(input_numpy_array):
     net.to(device=device)
     pred = net(tensor_image)   
 
-    criterion = SoftDiceLoss()
-    val_lose = criterion(pred, tensor_image_label).item()
-    print("inferece Done! loss: ", val_lose) 
+    print("inferece Done!") 
 
     pred = torch.squeeze(pred, 0)
     pred = torch.round(pred)
     pred = pred[1,:,:,:]
     pred = pred.cpu()
     pred = pred.detach().numpy()
-
+    
     return pred
 
 
