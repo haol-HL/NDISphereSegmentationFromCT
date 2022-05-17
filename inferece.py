@@ -7,7 +7,7 @@ from NDISegNet.utils import *
 
 def NDISeg(np_array, down_sample_factor):
     torch.cuda.empty_cache()
-    PATH = r'/home/hanglok/IPGM-CTSegmentation/NDISegNet/model/mobel_level4/model_in_500_dice_mobel4.pth'
+    PATH = r'C:\IPGM-CTSegmentation\nnUNet_model\mobel_level4/model_in_500_dice_mobel4.pth'
 
     if down_sample_factor > 1:
         np_array_res = np_array[::down_sample_factor, ::down_sample_factor, ::down_sample_factor]
@@ -26,9 +26,9 @@ def NDISeg(np_array, down_sample_factor):
 
     print("inferece Done!") 
     pred = torch.round(pred)
-    pred = pred[:,1,:,:,:]
+    pred = pred[:,1:,:,:,:]
     pred = torch.nn.functional.interpolate(pred, size =np_array.shape , mode='area') 
-
+    pred = torch.squeeze(pred, 0)
     pred = torch.squeeze(pred, 0)
     pred = pred.cpu()
     pred = pred.detach().numpy()
